@@ -219,6 +219,7 @@ body.noprog .rprog{display:none!important}
 #hud .ib{width:28px;height:28px;flex:none;color:var(--ink);border-radius:3px}
 #hud .ib i{width:15px;height:15px}
 #hud .ib:hover{background:var(--hover)}
+body.tauri #hRemote,body.viewer #hRemote{display:none}
 #hud .ib.on{background:var(--amber);color:#1a1200}
 #hud .play{width:auto;min-width:58px;height:30px;padding:0 8px;gap:5px;border-radius:4px;background:var(--teal);color:#06231d}
 #hud .play:hover{background:#5df0d6}
@@ -743,6 +744,7 @@ body.viewer .top,body.viewer .fmt,body.viewer #bmSide,body.viewer .stagewrap,bod
     <div class="grpx g1">
       <button class="ib" id="hHome" title="В началото (Home)"><i data-ic="home"></i></button>
       <button class="ib play" id="hPlay" title="Старт / пауза (Space)"><i data-ic="play"></i><i class="spc" data-ic="space"></i></button>
+      <button class="ib" id="hRemote" title="Дистанционно: покажи на компютъра"><i data-ic="monitor"></i></button>
     </div>
     <div class="hprog" id="hProg" title="Прогрес"><i id="hProgFill"></i></div>
     <div class="grpx r1" title="Скорост">
@@ -1101,7 +1103,7 @@ const EN={
 'Цветовете важат за интерфейса, не за текста в телепромптъра. Смяната на темата ги нулира.':'Colors apply to the interface, not to the teleprompter text. Changing the theme resets them.',
 'Кликнете или натиснете клавиш за цял екран.':'Click or press a key for full screen.',
 'РЕДАКТИРАНЕ':'EDITING','ЧЕТЕНЕ':'PROMPTING','ИЗБЕРЕТЕ ПАНЕЛ':'SELECT A PANEL','Мента':'Mint','Клавишни комбинации':'Keyboard shortcuts','Помощ':'Help','Налично само във Windows приложението. В браузъра и в Android версията не е достъпно.':'Available only in the Windows app. Not available in the browser or the Android version.','Дистанционно от телефон':'Phone remote','Дистанционно':'Remote','Включено':'On','Изключено':'Off','Нов код':'New code','Копирай адреса':'Copy address','Адресът е копиран.':'Address copied.','Не успях да копирам.':'Could not copy.',
-'Сканирайте кода с телефона. Телефонът и компютърът трябва да са в една Wi‑Fi мрежа. При първо включване Windows може да попита за достъп до мрежата: разрешете.':'Scan the code with your phone. The phone and the computer must be on the same Wi‑Fi network. The first time you turn it on, Windows may ask for network access: allow it.','Помощ и клавишни комбинации':'Help and keyboard shortcuts','Този прозорец с помощ':'This help window','Пусни на цял екран (от редактора)':'Start in full screen (from the editor)','Пусни в прозорец или на втория екран':'Start in a window or on the second screen','Запази като .html':'Save as .html','Запази като… (име и формат)':'Save as… (name and format)','Отвори файл':'Open file',
+'Сканирайте кода с телефона. Телефонът и компютърът трябва да са в една Wi‑Fi мрежа. При първо включване Windows може да попита за достъп до мрежата: разрешете.':'Scan the code with your phone. The phone and the computer must be on the same Wi‑Fi network. The first time you turn it on, Windows may ask for network access: allow it.','Помощ и клавишни комбинации':'Help and keyboard shortcuts','Този прозорец с помощ':'This help window','Пусни на цял екран (от редактора)':'Start in full screen (from the editor)','Пусни в прозорец или на втория екран':'Start in a window or on the second screen','Запази като .html':'Save as .html','Дистанционно: покажи на компютъра':'Remote: show on the computer','Запази като… (име и формат)':'Save as… (name and format)','Отвори файл':'Open file',
 'Активирай клавиши':'Activate keys',
 'Показване на панели':'Show or hide panels','Показване/скриване на отметките (B)':'Show/hide bookmarks (B)','Показване/скриване на редактора (когато е отворен втори прозорец)':'Show/hide the editor (when a second window is open)','Показване/скриване на настройките (S)':'Show/hide settings (S)','Влачете, за да разширите панела':'Drag to resize the panel','Влачете, за да оразмерите редактора и превюто. Двоен клик: автоматично.':'Drag to resize the editor and preview. Double-click: automatic.',
 'Клавишите са активни':'Keys are active',
@@ -1995,6 +1997,13 @@ $('#hMV').addEventListener('click',()=>set('mirrorV',!S.mirrorV));
 $('#hSet').addEventListener('click',()=>{settings.classList.toggle('open');showHud()});
 $('#bCloseSet').addEventListener('click',()=>{settings.classList.remove('open');drawer(null)});
 $('#hFull').addEventListener('click',()=>toggleFS());
+/* Android, четене на цял екран: превключва към дистанционно за компютъра (текстът се показва там, телефонът управлява) */
+$('#hRemote').addEventListener('click',()=>{
+  const n=netApi?netApi.state():null;
+  stopReading();
+  if(!n||!n.on||!n.ok){toast(t('Свържете компютър: сканирайте QR кода.'));openRemote(true);return}
+  netApi.open();
+});
 const IN_FRAME=window.parent!==window;
 $('#hExit').addEventListener('click',()=>VIEWER?(IN_FRAME?post({type:'bye'}):window.close()):stopReading());
 const hProg=$('#hProg');let seeking=false;
